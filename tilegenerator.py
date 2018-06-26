@@ -21,15 +21,24 @@ class TileGenerator:
     def setImageSize(self,rows,cols):
         self.rows = rows
         self.cols = cols
-
-        g1 = math.gcd(rows, self.h)
-        g2 = math.gcd(cols, self.w)
+        
+        if rows < self.h:
+            g1 = 0
+            top = [-int((self.h-rows)/2)]
+        else:
+            g1 = math.gcd(rows, self.h)
+            top = [-g1]
+        
+        if cols < self.w:
+            g2 = 0
+            left=[-int((self.w-cols)/2)]
+        else:
+            g2 = math.gcd(cols, self.w)
+            left = [-g2]
 
         self.g1 = g1
         self.g2 = g2
-
-        top = [-g1]
-        left = [-g2]
+      
         nex = left[-1] + w
         ne = top[-1] + h
         while nex < cols:
@@ -139,20 +148,20 @@ def getSubimage(img, ext, padded = True):
         return outim
 
 
-def poly2mask(gjcoord, maskimg):
+def poly2mask(gjcoord, maskimg,color=255):
     cc = numpy.array(gjcoord).ravel().tolist()
     #print(cc)
-    ImageDraw.Draw(maskimg).polygon(cc,outline=255,fill=1)
+    ImageDraw.Draw(maskimg).polygon(cc,outline=color,fill=1)
     return maskimg
 
 if __name__=="__main__":
 
     imgdir = glob.glob('renamed/*png')
 
-    cv2.namedWindow("img")
+    
 
-    w = 224
-    h = 224
+    w = 480
+    h = 480
 
     tg = TileGenerator(w, h)
 
@@ -163,10 +172,10 @@ if __name__=="__main__":
     #print(tg)
 
     for image in imgdir:
-        print(image)
-        jsonfilename = (os.path.basename(image).split('_')[-1]).replace('png','json')
+       # print(image)
+        jsonfilename = (os.path.basename(image)).replace('png','json')
 
-        annot = geojson.load(open(jsonfilename))
+        annot = geojson.load(open("json/"+jsonfilename))
 
         print(jsonfilename)
         img = cv2.imread(image)
@@ -185,29 +194,34 @@ if __name__=="__main__":
         #cv2.imshow("img",mask)
         #cv2.waitKey()
 
-        print(img.shape)
+        #print(img.shape)
 
         tg.setImageSize(rows,cols)
 
         shp = tg.shape()
 
-        print(shp)
-
+       # print(shp)
+        imgno=0
         for r12 in tg:
-            print(r12)
+           # print(r12)
             e12 = rectToExtent(r12)
             #print(e12)
             #
+
             sub = getSubimage(img,e12)
 
-            submask = getSubimage(mask,e12)
+            #cv2.imwrite("A/" + os.path.splitext(jsonfilename)[0] + "_" + str(imgno) + ".png",sub)
 
-            cv2.imshow("img", numpy.hstack((sub.astype(submask.dtype),submask)))
-            cv2.waitKey()
+            submask = getSubimage(mask,e12)
+            
+            cv2.imwrite("AB images/"+os.path.splitext(jsonfilename)[0]+"_"+str(imgno)+".png",numpy.hstack((sub,submask)))
+            #cv2.waitKey()
+            imgno=imgno+1
+            
         #plt.hold(True)
         #plt.plot(r12[0], r12[1], 'bx')
         #plt.plot(r12[0]+r12[2], r12[1]+r12[3], 'bx')
         #plt.hold(False)
 
-        #break
+
     #plt.show()
