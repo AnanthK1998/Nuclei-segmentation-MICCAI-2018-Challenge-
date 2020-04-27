@@ -8,9 +8,9 @@ The challenge provided image data and their respective ground truth masks of une
 ![Input Image](/images/image.png)                  ![Ground Truth mask](/images/mask.png)
 
 ## Architecture
-I used the UNet architecture (![alt text](https://arxiv.org/pdf/1505.04597.pdf)) for the task of semantic segmentation. I implemented this architecture using Keras.
+I used the ![UNet architecture for the task of semantic segmentation](https://arxiv.org/pdf/1505.04597.pdf). I implemented this architecture using Keras.
 ![Architecture](/images/unet.png)
 ## Training
-The model is trained with a batch size of 4 over 2422 images for training and 484 images for validation. Run main.py for training.
+The model is trained with a batch size of 4 over 2422 images for training and 484 images for validation. Run main.py for training. A validation accuracy of 93% was achieved with a dice score of 0.82.
 
 
